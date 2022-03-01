@@ -9,10 +9,8 @@ import {
 } from "reactfire";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-// import { List, ListItem, ListItemText } from "@mui/material";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { TodoList } from "./components/TodoList";
-import { createTheme, ThemeProvider } from "@mui/material";
 
 function App() {
   const firebaseApp = useFirebaseApp();

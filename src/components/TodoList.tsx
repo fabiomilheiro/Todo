@@ -37,6 +37,7 @@ export const TodoList = () => {
       <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
         {todos.map((todo) => {
           const todoRef = doc(todosCollection, todo.id);
+
           const labelId = `checkbox-list-label-${todo.id}`;
           return (
             <ListItem
@@ -51,20 +52,17 @@ export const TodoList = () => {
               <ListItemButton
                 role="document"
                 onClick={async () => {
-                  const newTodo: Todo = {
+                  await updateDoc(todoRef, {
                     ...todo,
-                    done: true,
-                  };
-                  console.log("New todo: ", newTodo);
-                  console.log("Updating", newTodo);
-                  await updateDoc(todoRef, newTodo);
+                    done: !todo.done,
+                  });
                 }}
                 dense
               >
                 <ListItemIcon>
                   <Checkbox
                     edge="start"
-                    checked={false}
+                    checked={todo.done}
                     tabIndex={-1}
                     disableRipple
                     inputProps={{ "aria-labelledby": labelId }}
@@ -80,7 +78,7 @@ export const TodoList = () => {
         {todos.map((todo) => (
           <ListItem key={todo.id}>
             <ListItemText>
-              {todo.id} {todo.title}
+              {todo.id} {todo.title}, done: {todo.done ? "Yes" : "No"}
             </ListItemText>
           </ListItem>
         ))}
