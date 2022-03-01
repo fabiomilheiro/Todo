@@ -3,9 +3,7 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
+import { FirebaseAppProvider } from "reactfire";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -19,13 +17,11 @@ const firebaseConfig = {
   appId: "1:716121129983:web:e807a59b3850ab9c90ddca",
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-console.log("Firebase app", app);
-
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <FirebaseAppProvider firebaseConfig={firebaseConfig}>
+      <App />
+    </FirebaseAppProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );
