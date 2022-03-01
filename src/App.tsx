@@ -11,6 +11,8 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { TodoList } from "./components/TodoList";
+import { createTheme, ThemeProvider } from "@mui/material";
+import { SnackbarProvider } from "notistack";
 
 function App() {
   const firebaseApp = useFirebaseApp();
@@ -27,7 +29,19 @@ function App() {
       {/* <PerformanceProvider sdk={performance.data}> */}
       <AuthProvider sdk={auth}>
         <FirestoreProvider sdk={firestore}>
-          <TodoList />
+          <ThemeProvider
+            theme={createTheme({
+              typography: {
+                h1: {
+                  fontSize: 24,
+                },
+              },
+            })}
+          >
+            <SnackbarProvider maxSnack={3}>
+              <TodoList />
+            </SnackbarProvider>
+          </ThemeProvider>
           <MyPageViewLogger location={window.location} />
         </FirestoreProvider>
       </AuthProvider>

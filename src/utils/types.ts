@@ -1,23 +1,28 @@
-import { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
+import {
+  DocumentData,
+  QueryDocumentSnapshot,
+  SnapshotOptions,
+  Timestamp,
+} from "firebase/firestore";
 
 export interface Todo {
-  id: string;
+  id?: string;
   title: string;
   done: boolean;
+  createTimestamp: Timestamp;
 }
 
-export const createConverter = <T extends { id: string }>() => ({
+export const createConverter = <T extends { id?: string }>() => ({
   toFirestore: (data: T): DocumentData => {
     const result: DocumentData = {
       ...data,
     };
     return result;
   },
-  fromFirestore: (snap: QueryDocumentSnapshot): T => {
-    const data = snap.data();
+  fromFirestore: (snap: QueryDocumentSnapshot, options: SnapshotOptions): T => {
+    const data = snap.data(options);
     const result: T = {
       ...(data as T),
-      id: snap.id,
     };
     return result;
   },

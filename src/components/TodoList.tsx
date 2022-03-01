@@ -1,88 +1,67 @@
+import { useState } from "react";
 import {
   Box,
-  Checkbox,
+  Container,
+  Fab,
   List,
-  ListItem,
-  ListItemText,
+  Theme,
   Typography,
+  useTheme,
 } from "@mui/material";
-import { collection, doc, query, updateDoc } from "firebase/firestore";
+import { collection, doc, orderBy, query } from "firebase/firestore";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
 import { createConverter, Todo } from "../utils/types";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import IconButton from "@mui/material/IconButton";
-import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
+import { TodoListItem } from "./TodoListItem";
+import { CreateTodoListItem } from "./CreateTodoListItem";
 
 const todoConverter = createConverter<Todo>();
 
 export const TodoList = () => {
+  const [creatingNewTodo, setCreatingNewTodo] = useState<boolean>();
+  const theme = useTheme<Theme>();
   const firestore = useFirestore();
   const todosCollection = collection(firestore, "todos").withConverter(
     todoConverter
   );
-  const todosQuery = query(todosCollection);
-  const { data: todos } = useFirestoreCollectionData(todosQuery);
+  const todosQuery = query(todosCollection, orderBy("createTimestamp"));
+  const { data: todos } = useFirestoreCollectionData(todosQuery, {
+    idField: "id",
+  });
 
   if (todos === undefined) {
-    console.log("todos undefined");
-    return null;
+    return <Box>Loading...</Box>;
   }
 
   return (
-    <Box sx={{ m: 2 }}>
-      <Typography variant="h1" sx={{ fontSize: 20 }}>
-        Todo list
+    <Container maxWidth="sm">
+      <Typography variant="h1" sx={{ textAlign: "center", m: 3 }}>
+        Todo list with firebase 🔥
       </Typography>
-      <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
+      <List sx={{ width: "100%" }}>
         {todos.map((todo) => {
           const todoRef = doc(todosCollection, todo.id);
-
-          const labelId = `checkbox-list-label-${todo.id}`;
-          return (
-            <ListItem
-              key={todo.id}
-              secondaryAction={
-                <IconButton edge="end" aria-label="edit">
-                  <EditIcon />
-                </IconButton>
-              }
-              disablePadding
-            >
-              <ListItemButton
-                role="document"
-                onClick={async () => {
-                  await updateDoc(todoRef, {
-                    ...todo,
-                    done: !todo.done,
-                  });
-                }}
-                dense
-              >
-                <ListItemIcon>
-                  <Checkbox
-                    edge="start"
-                    checked={todo.done}
-                    tabIndex={-1}
-                    disableRipple
-                    inputProps={{ "aria-labelledby": labelId }}
-                  />
-                </ListItemIcon>
-                <ListItemText id={labelId} primary={todo.title} />
-              </ListItemButton>
-            </ListItem>
-          );
+          return <TodoListItem key={todo.id} todo={todo} todoRef={todoRef} />;
         })}
+        {creatingNewTodo && (
+          <CreateTodoListItem
+            todosCollection={todosCollection}
+            onFinished={() => setCreatingNewTodo(false)}
+          />
+        )}
       </List>
-      <List>
-        {todos.map((todo) => (
-          <ListItem key={todo.id}>
-            <ListItemText>
-              {todo.id} {todo.title}, done: {todo.done ? "Yes" : "No"}
-            </ListItemText>
-          </ListItem>
-        ))}
-      </List>
-    </Box>
+      <Fab
+        color="primary"
+        aria-label="add"
+        sx={{
+          position: "fixed",
+          bottom: theme.spacing(1),
+          right: theme.spacing(1),
+        }}
+        onClick={() => setCreatingNewTodo(true)}
+      >
+        <AddIcon />
+      </Fab>
+    </Container>
   );
 };
