@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import {
   AnalyticsProvider,
@@ -7,12 +7,14 @@ import {
   useAnalytics,
   useFirebaseApp,
 } from "reactfire";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import { TodoList } from "./components/TodoList";
 import { createTheme, ThemeProvider } from "@mui/material";
 import { SnackbarProvider } from "notistack";
+import { UserContext } from "./components/context/UserContext";
+import { TopBar } from "./components/TopBar";
 
 function App() {
   const firebaseApp = useFirebaseApp();
@@ -23,30 +25,46 @@ function App() {
   //   const { getPerformance } = await import("firebase/performance");
   //   return getPerformance(fa);
   // });
+  const [userContext, setUserContext] = useState({});
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserContext({
+          user,
+        });
+      } else {
+        setUserContext({});
+      }
+    });
+  }, [auth]);
 
   return (
-    <AnalyticsProvider sdk={analytics}>
-      {/* <PerformanceProvider sdk={performance.data}> */}
-      <AuthProvider sdk={auth}>
-        <FirestoreProvider sdk={firestore}>
-          <ThemeProvider
-            theme={createTheme({
-              typography: {
-                h1: {
-                  fontSize: 24,
+    <UserContext.Provider value={userContext}>
+      <AnalyticsProvider sdk={analytics}>
+        {/* <PerformanceProvider sdk={performance.data}> */}
+        <AuthProvider sdk={auth}>
+          <FirestoreProvider sdk={firestore}>
+            <ThemeProvider
+              theme={createTheme({
+                typography: {
+                  h1: {
+                    fontSize: 24,
+                  },
                 },
-              },
-            })}
-          >
-            <SnackbarProvider maxSnack={3}>
-              <TodoList />
-            </SnackbarProvider>
-          </ThemeProvider>
-          <MyPageViewLogger location={window.location} />
-        </FirestoreProvider>
-      </AuthProvider>
-      {/* </PerformanceProvider> */}
-    </AnalyticsProvider>
+              })}
+            >
+              <SnackbarProvider maxSnack={3}>
+                <TopBar />
+                <TodoList />
+              </SnackbarProvider>
+            </ThemeProvider>
+            <MyPageViewLogger location={window.location} />
+          </FirestoreProvider>
+        </AuthProvider>
+        {/* </PerformanceProvider> */}
+      </AnalyticsProvider>
+    </UserContext.Provider>
   );
 }
 

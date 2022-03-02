@@ -1,11 +1,11 @@
 import { useState } from "react";
 import {
   Box,
+  CircularProgress,
   Container,
   Fab,
   List,
   Theme,
-  Typography,
   useTheme,
 } from "@mui/material";
 import { collection, doc, orderBy, query } from "firebase/firestore";
@@ -29,39 +29,42 @@ export const TodoList = () => {
     idField: "id",
   });
 
-  if (todos === undefined) {
-    return <Box>Loading...</Box>;
-  }
-
   return (
-    <Container maxWidth="sm">
-      <Typography variant="h1" sx={{ textAlign: "center", m: 3 }}>
-        Todo list with firebase 🔥
-      </Typography>
-      <List sx={{ width: "100%" }}>
-        {todos.map((todo) => {
-          const todoRef = doc(todosCollection, todo.id);
-          return <TodoListItem key={todo.id} todo={todo} todoRef={todoRef} />;
-        })}
-        {creatingNewTodo && (
-          <CreateTodoListItem
-            todosCollection={todosCollection}
-            onFinished={() => setCreatingNewTodo(false)}
-          />
-        )}
-      </List>
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{
-          position: "fixed",
-          bottom: theme.spacing(1),
-          right: theme.spacing(1),
-        }}
-        onClick={() => setCreatingNewTodo(true)}
-      >
-        <AddIcon />
-      </Fab>
+    <Container maxWidth="sm" sx={{ pt: 3 }}>
+      {!todos ? (
+        <Box display="flex">
+          <CircularProgress sx={{ margin: `${theme.spacing(3)} auto` }} />
+        </Box>
+      ) : (
+        <>
+          <List sx={{ width: "100%" }}>
+            {todos.map((todo) => {
+              const todoRef = doc(todosCollection, todo.id);
+              return (
+                <TodoListItem key={todo.id} todo={todo} todoRef={todoRef} />
+              );
+            })}
+            {creatingNewTodo && (
+              <CreateTodoListItem
+                todosCollection={todosCollection}
+                onFinished={() => setCreatingNewTodo(false)}
+              />
+            )}
+          </List>
+          <Fab
+            color="primary"
+            aria-label="add"
+            sx={{
+              position: "fixed",
+              bottom: theme.spacing(1),
+              right: theme.spacing(1),
+            }}
+            onClick={() => setCreatingNewTodo(true)}
+          >
+            <AddIcon />
+          </Fab>
+        </>
+      )}
     </Container>
   );
 };
