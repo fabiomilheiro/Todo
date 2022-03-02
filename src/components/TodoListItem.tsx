@@ -18,6 +18,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { TodoListItemEditForm } from "./TodoListItemEditForm";
 import { useSnackbar } from "notistack";
+import { useUserContext } from "./context/UserContext";
 
 interface Props {
   todo: Todo;
@@ -28,7 +29,7 @@ export const TodoListItem = ({ todo, todoRef }: Props) => {
   const [editFormOpen, setEditFormOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
-
+  const { user } = useUserContext();
   const labelId = `checkbox-list-label-${todo.id}`;
   return editFormOpen ? (
     <TodoListItemEditForm
@@ -44,6 +45,7 @@ export const TodoListItem = ({ todo, todoRef }: Props) => {
             <IconButton
               edge="end"
               aria-label="edit"
+              disabled={!user}
               onClick={() => setEditFormOpen(true)}
             >
               <EditIcon />
@@ -51,6 +53,7 @@ export const TodoListItem = ({ todo, todoRef }: Props) => {
             <IconButton
               edge="end"
               aria-label="delete"
+              disabled={!user}
               onClick={() => {
                 setDeleteDialogOpen(true);
               }}
@@ -61,21 +64,18 @@ export const TodoListItem = ({ todo, todoRef }: Props) => {
         }
         disablePadding
       >
-        <ListItemButton
-          role="document"
-          onClick={async () => {
-            await updateDoc(todoRef, {
-              done: !todo.done,
-            });
-          }}
-          dense
-        >
+        <ListItemButton role="document" dense disableRipple={true}>
           <ListItemIcon>
             <Checkbox
               edge="start"
               checked={todo.done}
+              onChange={async () => {
+                await updateDoc(todoRef, {
+                  done: !todo.done,
+                });
+              }}
+              disabled={!user}
               tabIndex={-1}
-              disableRipple
               inputProps={{ "aria-labelledby": labelId }}
             />
           </ListItemIcon>

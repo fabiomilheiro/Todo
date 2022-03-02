@@ -14,6 +14,7 @@ import { createConverter, Todo } from "../utils/types";
 import AddIcon from "@mui/icons-material/Add";
 import { TodoListItem } from "./TodoListItem";
 import { CreateTodoListItem } from "./CreateTodoListItem";
+import { useUserContext } from "./context/UserContext";
 
 const todoConverter = createConverter<Todo>();
 
@@ -28,6 +29,7 @@ export const TodoList = () => {
   const { data: todos } = useFirestoreCollectionData(todosQuery, {
     idField: "id",
   });
+  const { user } = useUserContext();
 
   return (
     <Container maxWidth="sm" sx={{ pt: 3 }}>
@@ -51,18 +53,20 @@ export const TodoList = () => {
               />
             )}
           </List>
-          <Fab
-            color="primary"
-            aria-label="add"
-            sx={{
-              position: "fixed",
-              bottom: theme.spacing(1),
-              right: theme.spacing(1),
-            }}
-            onClick={() => setCreatingNewTodo(true)}
-          >
-            <AddIcon />
-          </Fab>
+          {user && (
+            <Fab
+              color="primary"
+              aria-label="add"
+              sx={{
+                position: "fixed",
+                bottom: theme.spacing(1),
+                right: theme.spacing(1),
+              }}
+              onClick={() => setCreatingNewTodo(true)}
+            >
+              <AddIcon />
+            </Fab>
+          )}
         </>
       )}
     </Container>

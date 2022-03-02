@@ -103,7 +103,12 @@ export const TopBar = () => {
                   <Typography textAlign="center">Sign out</Typography>
                 </MenuItem>
               ) : (
-                <MenuItem onClick={() => signInWithPopup(auth, github)}>
+                <MenuItem
+                  onClick={() => {
+                    handleCloseUserMenu();
+                    signInWithPopup(auth, github);
+                  }}
+                >
                   <Typography textAlign="center">
                     Sign in with GitHub
                   </Typography>
